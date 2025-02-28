@@ -20,4 +20,11 @@ export default App;
 // configureStore()
 // createSlice()
 // createAthyncThunk()
-// 
+
+
+
+
+// 1. git init
+// 2. git add .
+// 3. git commit -m "сенин жасаган озгортуун"
+// 4. git push origin "сенин веткан"
