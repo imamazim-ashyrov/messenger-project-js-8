@@ -9,6 +9,8 @@ const messengerSlice = createSlice({
   initialState,
   reducers: {
     saveMessages: (state, action) => {
+      console.log(action);
+      
       state.messages = action.payload;
     },
   },
