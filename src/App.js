@@ -1,11 +1,10 @@
 import Chat from "./components/Chat";
 
 function App() {
-  
   return (
     <div className="App">
-      <Chat/>
-
+      <Chat />
+      <h1>This is my Branch(Anara)</h1>
       <h1>Hello This is my Branch (Imamazim)</h1>
     </div>
   );
@@ -13,18 +12,7 @@ function App() {
 
 export default App;
 
-
-
-
-// REDUX - TOOlKIT  
+// REDUX - TOOlKIT
 // configureStore()
 // createSlice()
 // createAthyncThunk()
-
-
-
-
-// 1. git init
-// 2. git add .
-// 3. git commit -m "сенин жасаган озгортуун"
-// 4. git push origin "сенин веткан"
