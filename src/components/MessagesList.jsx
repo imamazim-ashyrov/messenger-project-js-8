@@ -80,7 +80,8 @@ const MessagesContainer = styled.div`
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  background-image: url("https://example.com/chat-bg.png"); /* Замените на нужное изображение */
+  background-image: url("https://kartinki.pics/pics/uploads/posts/2022-08/thumbs/1659996529_10-kartinkin-net-p-fon-vatsap-standartnii-krasivo-10.png");
+  //background-image: url("https://example.com/chat-bg.png"); Замените на нужное изображение
   background-size: cover;
 `;
 
@@ -122,3 +123,4 @@ const Loading = styled.h2`
   text-align: center;
   margin-top: 50px;
 `;
+
