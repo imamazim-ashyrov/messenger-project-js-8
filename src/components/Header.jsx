@@ -20,7 +20,7 @@ const Header = () => {
 export default Header;
 
 const HeaderContainer = styled.div`
-  background-color: #075e54;
+  background-color: #128f59;
   color: white;
   padding: 15px;
   display: flex;
