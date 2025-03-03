@@ -1,12 +1,23 @@
 import { addDoc, collection } from "firebase/firestore";
-import React, { useState } from "react";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import { db } from "../firebase";
-import { Button, TextField } from "@mui/material";
-import sendAudio from "../assets/audios/sendAudio.mp3"
+import { Button, TextField, IconButton, Menu, MenuItem, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import sendAudio from "../assets/audios/sendAudio.mp3";
 import { userName } from "./MessagesList";
 import { useSelector } from "react-redux";
-import SendIcon from "@mui/icons-material/Send"
+import SendIcon from "@mui/icons-material/Send";
+import MicIcon from "@mui/icons-material/Mic";
+import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import DescriptionIcon from "@mui/icons-material/Description";
+import ImageIcon from "@mui/icons-material/Image";
+import EmojiPicker from "emoji-picker-react";
+
+
+const storage = getStorage();
 
 const getCurrentTime = () => {
   const date = new Date();
@@ -16,28 +27,133 @@ const getCurrentTime = () => {
 };
 
 const SendMessage = () => {
-
   const messagesData = useSelector((state) => state.messenger.messages);
-
   const [changeMessage, setChangeMessage] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [openCamera, setOpenCamera] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
   const sendMessageHandler = async () => {
+    if (!changeMessage.trim() && !selectedFile) return; 
+
     new Audio(sendAudio).play();
+    let fileUrl = "";
+    
+    let messageToSend = changeMessage;
+    if (changeMessage.trim().startsWith("http")) {
+      messageToSend = `<a href="${changeMessage.trim()}" target="_blank">${changeMessage.trim()}</a>`;  // Жөнөтүлгөн текстти <a> тегине айландыруу
+    }
+
+    if (selectedFile) {
+      const fileRef = ref(storage, `uploads/${selectedFile.name}`);
+      await uploadBytes(fileRef, selectedFile);
+      fileUrl = await getDownloadURL(fileRef);
+    }
+
     const message = {
       userName: userName,
-      message: changeMessage,
+      message: messageToSend, 
+      fileUrl,
       dateOfMessage: getCurrentTime(),
       index: messagesData.length + 1,
     };
     try {
       await addDoc(collection(db, "messenger"), message);
       setChangeMessage("");
+      setSelectedFile(null);
+      setFilePreview(null);
     } catch (error) {
       window.alert("Возникла ошибка при отправлении сообщения!");
     }
   };
 
+  const handleFileMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFileMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const fileURL = URL.createObjectURL(file);
+      setFilePreview(fileURL);
+    }
+    handleFileMenuClose();
+  };
+
+  const handleOpenCamera = async () => {
+    setOpenCamera(true);
+    handleFileMenuClose();
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  };
+
+  const handleCapturePhoto = () => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    const context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      const file = new File([blob], "camera_photo.png", { type: "image/png" });
+      setSelectedFile(file);
+      setFilePreview(URL.createObjectURL(file));
+    });
+    setOpenCamera(false);
+  };
+
+  const handleEmojiSelect = (emojiData) => {
+    setChangeMessage((prev) => prev + emojiData.emoji);
+  };
+
   return (
     <InputContainer>
+      <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+        <InsertEmoticonIcon />
+      </IconButton>
+      {showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiSelect} />}
+      <IconButton onClick={handleFileMenuClick}>
+        <AttachFileIcon />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleFileMenuClose}>
+        <MenuItem>
+          <label htmlFor="file-upload">
+            <ImageIcon /> Фото жана видео
+          </label>
+          <input
+            type="file"
+            accept="image/*, video/*"
+            id="file-upload"
+            onChange={handleFileSelect}
+            style={{ display: "none" }}
+          />
+        </MenuItem>
+        <MenuItem onClick={handleOpenCamera}> <CameraAltIcon /> Камера </MenuItem>
+        <MenuItem>
+          <label htmlFor="doc-upload">
+            <DescriptionIcon /> Документ
+          </label>
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            id="doc-upload"
+            onChange={handleFileSelect}
+            style={{ display: "none" }}
+          />
+        </MenuItem>
+      </Menu>
+      
+      {filePreview && <PreviewImage src={filePreview} alt="file preview" />}
+      
       <StyledTextField
         value={changeMessage}
         onChange={(e) => setChangeMessage(e.target.value)}
@@ -45,13 +161,22 @@ const SendMessage = () => {
         variant="outlined"
         fullWidth
       />
-      <StyledButton
-        disabled={changeMessage.trim() === ""}
-        onClick={sendMessageHandler}
-        variant="contained"
-      >
-        <SendIcon />
-      </StyledButton>
+      
+      <IconButton onClick={(changeMessage.trim() || selectedFile) ? sendMessageHandler : null}>
+        {(changeMessage.trim() || selectedFile) ? <SendIcon /> : <MicIcon />}
+      </IconButton>
+
+      <Dialog open={openCamera} onClose={() => setOpenCamera(false)}>
+        <DialogTitle>Сделать снимок</DialogTitle>
+        <DialogContent>
+          <video ref={videoRef} autoPlay style={{ width: "100%" }}></video>
+          <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCamera(false)}>Отмена</Button>
+          <Button onClick={handleCapturePhoto}>Сделать снимок</Button>
+        </DialogActions>
+      </Dialog>
     </InputContainer>
   );
 };
@@ -60,6 +185,7 @@ export default SendMessage;
 
 const InputContainer = styled.div`
   display: flex;
+  align-items: center;
   padding: 10px;
   background-color: #f0f0f0;
 `;
@@ -71,13 +197,11 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const StyledButton = styled(Button)`
-  margin-left: 10px;
-  border-radius: 50%;
-  min-width: 0;
-  padding: 10px;
-  background-color: #075e54;
-  &:hover {
-    background-color: #0a7e66;
-  }
+const PreviewImage = styled.img`
+  max-width: 50px;
+  max-height: 50px;
+  margin-right: 10px;
+  border-radius: 5px;
 `;
+
+
