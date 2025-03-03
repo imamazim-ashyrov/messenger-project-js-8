@@ -11,7 +11,9 @@ const Header = () => {
       <HeaderDiv>
         <IImg src={MyImage} alt="звонок" />
         <IImg src={MyImage2} alt="поиск" />
+        <MenuDiv>
         <HeaderMenu/>
+        </MenuDiv>
       </HeaderDiv>
     </HeaderContainer>
   );
@@ -24,30 +26,45 @@ const HeaderContainer = styled.div`
   color: white;
   padding: 15px;
   display: flex;
-  align-items: center; 
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%; 
 `;
 
 const HeaderTitle = styled.h1`
-  font-size: 20px;
+  font-size: 1.5vw;
   margin: 0;
-  margin-right:1000px;
+  text-align: left;
+  flex-grow: 1; 
 `;
 
 const Img = styled.img`
-  width: 70px;
-  height: 70px;
-  border-radius: 100px;
-  margin-right: auto;
+  width: 5vw; 
+  height: 5vw; 
+  border-radius: 50%;
+  margin-right: 20px;
 `;
 
 const HeaderDiv = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-end; 
 `;
 
 const IImg = styled.img`
-  width: 30px;
-  height: 30px;
-  border-radius: 100px;
+  width: 2vw; 
+  height: 2vw;
+  border-radius: 50%;
   margin-left: 10px;
+`;
+
+const MenuDiv = styled.div`
+  width: 5vw;
+  height: 5vw; 
+  min-width: 10px; 
+  min-height: 10px;
+  max-width: 15px; 
+  max-height: 15px;
+  margin-top: -25px;
 `
