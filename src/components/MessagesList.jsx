@@ -12,7 +12,7 @@ import {
 import { db } from "../firebase";
 import { saveMessages } from "../store/slices/messengerSlice";
 
-export const userName = "Iskhak";
+export const userName = localStorage.getItem("userName");
 
 const MessagesList = () => {
   const dispatch = useDispatch();

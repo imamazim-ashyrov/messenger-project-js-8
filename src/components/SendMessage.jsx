@@ -3,7 +3,17 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import { db } from "../firebase";
-import { Button, TextField, IconButton, Menu, MenuItem, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Button,
+  TextField,
+  IconButton,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 import sendAudio from "../assets/audios/sendAudio.mp3";
 import { userName } from "./MessagesList";
 import { useSelector } from "react-redux";
@@ -15,7 +25,6 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ImageIcon from "@mui/icons-material/Image";
 import EmojiPicker from "emoji-picker-react";
-
 
 const storage = getStorage();
 
@@ -38,14 +47,14 @@ const SendMessage = () => {
   const canvasRef = useRef(null);
 
   const sendMessageHandler = async () => {
-    if (!changeMessage.trim() && !selectedFile) return; 
+    if (!changeMessage.trim() && !selectedFile) return;
 
     new Audio(sendAudio).play();
     let fileUrl = "";
-    
+
     let messageToSend = changeMessage;
     if (changeMessage.trim().startsWith("http")) {
-      messageToSend = `<a href="${changeMessage.trim()}" target="_blank">${changeMessage.trim()}</a>`;  // Жөнөтүлгөн текстти <a> тегине айландыруу
+      messageToSend = `<a href="${changeMessage.trim()}" target="_blank">${changeMessage.trim()}</a>`; // Жөнөтүлгөн текстти <a> тегине айландыруу
     }
 
     if (selectedFile) {
@@ -56,7 +65,7 @@ const SendMessage = () => {
 
     const message = {
       userName: userName,
-      message: messageToSend, 
+      message: messageToSend,
       fileUrl,
       dateOfMessage: getCurrentTime(),
       index: messagesData.length + 1,
@@ -124,7 +133,11 @@ const SendMessage = () => {
       <IconButton onClick={handleFileMenuClick}>
         <AttachFileIcon />
       </IconButton>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleFileMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleFileMenuClose}
+      >
         <MenuItem>
           <label htmlFor="file-upload">
             <ImageIcon /> Фото жана видео
@@ -137,7 +150,10 @@ const SendMessage = () => {
             style={{ display: "none" }}
           />
         </MenuItem>
-        <MenuItem onClick={handleOpenCamera}> <CameraAltIcon /> Камера </MenuItem>
+        <MenuItem onClick={handleOpenCamera}>
+          {" "}
+          <CameraAltIcon /> Камера{" "}
+        </MenuItem>
         <MenuItem>
           <label htmlFor="doc-upload">
             <DescriptionIcon /> Документ
@@ -151,9 +167,15 @@ const SendMessage = () => {
           />
         </MenuItem>
       </Menu>
-      
-      {filePreview && <PreviewImage src={filePreview} alt="file preview" />}
-      
+
+      {filePreview && (
+        <PrewFileContainer>
+          <PreviewImage src={filePreview} alt="file preview" />
+          {/* <IconButton onClick={sendMessageHandler}>Send Message</IconButton> */}
+          <button onClick={sendMessageHandler}>Send</button>
+        </PrewFileContainer>
+      )}
+
       <StyledTextField
         value={changeMessage}
         onChange={(e) => setChangeMessage(e.target.value)}
@@ -161,9 +183,13 @@ const SendMessage = () => {
         variant="outlined"
         fullWidth
       />
-      
-      <IconButton onClick={(changeMessage.trim() || selectedFile) ? sendMessageHandler : null}>
-        {(changeMessage.trim() || selectedFile) ? <SendIcon /> : <MicIcon />}
+
+      <IconButton
+        onClick={
+          changeMessage.trim() || selectedFile ? sendMessageHandler : null
+        }
+      >
+        {changeMessage.trim() || selectedFile ? <SendIcon /> : <MicIcon />}
       </IconButton>
 
       <Dialog open={openCamera} onClose={() => setOpenCamera(false)}>
@@ -197,11 +223,26 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const PreviewImage = styled.img`
-  max-width: 50px;
-  max-height: 50px;
+const PrewFileContainer = styled.div`
+  border: 1px solid white;
+  padding: 2em;
+  /* width: 500px; */
   margin-right: 10px;
   border-radius: 5px;
+  position: absolute;
+  bottom: 4em;
+  left: 2em;
+  z-index: 10;
+  background-color: black;
+  display: flex;
+  gap: 2em;
+  align-items: end;
+  flex-direction: column;
+  button {
+    padding: 1em 2em
+  }
+`
+
+const PreviewImage = styled.img`
+  width: 300px;
 `;
-
-
