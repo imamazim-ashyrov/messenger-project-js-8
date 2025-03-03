@@ -25,6 +25,7 @@ const MessagesList = () => {
 
   console.log(sortedMessages);
 
+
   useEffect(() => {
     setIsLoading(true);
     const q = query(collection(db, "messenger"));
@@ -66,7 +67,7 @@ const MessagesList = () => {
             <MessageMenu onClick={() => deleteMessageHandler(message.id)} />
             <MessageUser>{message.userName}</MessageUser>
             <MessageText>{message.message}</MessageText>
-            <MessageTime>{message.time}</MessageTime>
+            <MessageTime>{message.dateOfMessage}</MessageTime>
           </MessageBubble>
         </MessageRow>
       ))}
