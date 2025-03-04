@@ -72,6 +72,6 @@ const MenuDiv = styled.div`
 
   &:hover {
     cursor: pointer;
-    opacity: 0.8;
-  }
+    opacity: 0.8;
+  }
 `;
